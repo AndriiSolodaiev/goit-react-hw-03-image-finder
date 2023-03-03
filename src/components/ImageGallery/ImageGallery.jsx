@@ -6,6 +6,7 @@ import { ThreeCircles } from 'react-loader-spinner';
 import { Button } from '../Button';
 import { toast } from 'react-toastify';
 import { fetchImages } from 'components/api';
+import PropTypes from 'prop-types';
 
 export class ImageGallery extends Component {
   state = {
@@ -69,7 +70,7 @@ export class ImageGallery extends Component {
             toast.error('Sorry, there are no results');
           }
         })
-        .catch(err => alert(err.message))
+        .catch(err => console(err.message))
         .finally(() => this.setState({ loading: false }));
     }
     return;
@@ -102,12 +103,11 @@ export class ImageGallery extends Component {
         )}
         <List>
           {images.length > 0 &&
-            images.map(({ id, webformatURL, largeImageURL }, index) => (
+            images.map(({ id, webformatURL }, index) => (
               <ImageGalleryItem
                 key={id}
                 onClick={() => this.onImageClick(index)}
                 webformatURL={webformatURL}
-                largeImageURL={largeImageURL}
               />
             ))}
         </List>{' '}
@@ -135,3 +135,7 @@ export class ImageGallery extends Component {
     );
   }
 }
+
+ImageGallery.propTypes = {
+  searchRequest: PropTypes.string.isRequired,
+};
