@@ -5,7 +5,7 @@ import { Modal } from '../Modal';
 import { ThreeCircles } from 'react-loader-spinner';
 import { Button } from '../Button';
 import { toast } from 'react-toastify';
-import { fetchImages } from 'components/api';
+import { fetchImages } from 'api';
 import PropTypes from 'prop-types';
 
 export class ImageGallery extends Component {
@@ -25,14 +25,13 @@ export class ImageGallery extends Component {
     const nextPage = this.state.page;
 
     if (prevName !== nextName) {
-      this.setState({ loading: true, page: 1 });
+      this.setState({
+        loading: true,
+        page: 1,
+        images: [],
+        disableButton: false,
+      });
       fetchImages(nextName, 1)
-        .then(res => {
-          if (!res.ok) {
-            return Promise.reject(new Error(`Not found`));
-          }
-          return res.json();
-        })
         .then(({ hits, totalHits }) => {
           if (hits.length) {
             toast.info(`We found ${totalHits} results`);
@@ -52,12 +51,6 @@ export class ImageGallery extends Component {
     ) {
       this.setState({ loading: true });
       fetchImages(nextName, nextPage)
-        .then(res => {
-          if (!res.ok) {
-            return Promise.reject(new Error(`Not found`));
-          }
-          return res.json();
-        })
         .then(({ hits }) => {
           if (hits.length) {
             this.setState({
@@ -85,7 +78,6 @@ export class ImageGallery extends Component {
   };
 
   onImageClick = index => {
-    console.dir(index);
     this.setState({ activImage: index });
     this.togleModal();
   };
@@ -101,16 +93,17 @@ export class ImageGallery extends Component {
             <img src={images[activImage].largeImageURL} alt=""></img>
           </Modal>
         )}
-        <List>
-          {images.length > 0 &&
-            images.map(({ id, webformatURL }, index) => (
+        {images.length > 0 && (
+          <List>
+            {images.map(({ id, webformatURL }, index) => (
               <ImageGalleryItem
                 key={id}
                 onClick={() => this.onImageClick(index)}
                 webformatURL={webformatURL}
               />
             ))}
-        </List>{' '}
+          </List>
+        )}
         {loading && (
           <ThreeCircles
             height="100"
@@ -125,7 +118,7 @@ export class ImageGallery extends Component {
             middleCircleColor=""
           />
         )}
-        {images.length > 0 && (
+        {images.length > 0 && !loading && (
           <Button
             onClick={this.handleClickMore}
             disableButton={disableButton}
